@@ -1,0 +1,22 @@
+/**
+ * Standard CSS comment (no '@')
+ */
+.text-left {
+    text-align: left;
+}
+
+/**
+ * Annotated comment
+ * @CSS\StyleRule(name="Orange", matchSelector="p,h1,h2,h3")
+ */
+.orange {
+    color: orange;
+}
+
+/**
+ * Another annotated comment
+ * @CSS\StyleRule(name="Highlighted", matchSelector="div", conflictWith=".small")
+ */
+.highlighted {
+    color: orange;
+}
