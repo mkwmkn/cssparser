@@ -8,18 +8,14 @@ class CssParser {
      */
     protected $cssFilePath;
 
-    /**
-     * array to store the extracted data from css file
-     */
-    protected $cssData;
-
+    
     /**
      * Constructor
      * initialize the data array
      */
     public function __construct() 
     {
-        $this->cssData = array();
+        $this->cssFilePath= "";
     }
 
     /**
@@ -73,7 +69,8 @@ class CssParser {
         $dataAfterAddSign = array();
         $tempVariables = array();
         $tempCssSelector = "";
-
+        $phpClassNames = array();
+        $cssSelectors = array();
         foreach ($extractedPerRule as $xp):
             //get the data after @ sign
             preg_match("/@(.*)/", $xp[0], $dataAfterAddSign);
@@ -82,17 +79,31 @@ class CssParser {
             if ($tempClassName) {
                 $tempCssSelector = $this->extractCssSelectors($xp[1]);
                 $tempVariables[] = $this->extractVariablesAndValues($dataAfterAddSign[1], $tempCssSelector);
+                $phpClassNames[] = "\\".$tempClassName;
+                $cssSelectors[]  = $tempCssSelector;
             }
 
         endforeach;
-
-        foreach ($tempVariables as $tv):
-            array_push($this->cssData, $tv);
+       
+        $returnArr=array();      
+        $count=0;
+        foreach ($tempVariables as $tv): 
+            $styleRule =  new $phpClassNames[$count](($cssSelectors[$count] ? $cssSelectors[$count] : ""));
+            foreach($tv as $t):           
+                extract($t);
+                $styleRule->setName(($name ? $name : ""));
+                $styleRule->setCssSelector(($cssSelector ? $cssSelector : ""));
+                $styleRule->setMatchSelector(($matchSelector ? $matchSelector : ""));
+                $styleRule->setConflictWith(($conflictWith ? $conflictWith : ""));
+            endforeach;
+            $returnArr[] = $styleRule;
+            $count++;
         endforeach;
-
-        return $this->cssData;
+        
+        return $returnArr;
     }
 
+    
     /**
      * Valid Comments and CSS syntax
      *
